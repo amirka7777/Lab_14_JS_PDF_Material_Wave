@@ -1,24 +1,45 @@
-import '../css/style.css'
-import javascriptLogo from '../javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+import '../css/style.css';
 
-setupCounter(document.querySelector('#counter'))
+document.addEventListener('click', (e) => {
+    const target = e.target.closest('.card, button');
+    if (!target) return;
+
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple');
+    
+    const rect = target.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    
+    ripple.style.width = ripple.style.height = `${size}px`;
+    ripple.style.left = `${e.clientX - rect.left - size/2}px`;
+    ripple.style.top = `${e.clientY - rect.top - size/2}px`;
+
+    target.appendChild(ripple);
+    ripple.onanimationend = () => ripple.remove();
+});
+
+
+const fields = document.querySelectorAll('[contenteditable="true"]');
+
+fields.forEach(field => {
+    const key = field.getAttribute('data-storage');
+    
+    // Загрузка
+    if (localStorage.getItem(key)) {
+        field.innerText = localStorage.getItem(key);
+    }
+    
+
+    field.addEventListener('input', () => {
+        localStorage.setItem(key, field.innerText);
+    });
+});
+
+
+const downloadBtn = document.getElementById('download-pdf');
+if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+        window.print(); 
+    });
+}
